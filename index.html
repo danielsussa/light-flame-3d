@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Slow Fade</title>
+</head>
+
+<body>
+    <h1>Slow Fade</h1>
+    <div>
+        <canvas id="c"></canvas>
+    </div>
+    <div id="fps"></div>
+</body>
+<script src="gpu-browser.min.js"></script>
+<script>
+
+
+    ////////// Classes
+
+    class Scene {
+
+    }
+
+    class Vector {
+        constructor(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        toArray() {
+            return [this.x, this.y, this.z];
+        }
+        static times(k, v) {
+            return new Vector(k * v.x, k * v.y, k * v.z);
+        }
+        static minus(v1, v2) {
+            return new Vector(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+        }
+        static magnitude(v) {
+            return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        }
+        static norm(v) {
+            const mag = Vector.magnitude(v);
+            const div = (mag === 0) ? Infinity : 1.0 / mag;
+            return Vector.times(div, v);
+        }
+        static cross(v1, v2) {
+            return new Vector(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+        }
+    }
+
+    class Point {
+        constructor(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        static distance(v2){
+            return math.Sqrt((v2.x-this.x)*(v2.x-this.x) + (v2.y-this.y)*(v2.y-this.y) + (v2.z-this.z)*(v2.z-this.z))
+        }
+    }
+
+    class Line {
+        constructor(v1, v2) {
+            this.v1 = v1;
+            this.v2 = v2;
+        }
+        static distance(v3){
+            const ab = v1.distance(v2);
+            const ac = v2.distance(v3);
+            const bc = v1.distance(v3);
+            return ab + ac - bc;
+        }
+    }
+
+
+    ////////////////////////
+
+
+    const canvas = document.getElementById('c');
+
+    const gpu = new GPU({
+        mode: 'dev',
+        canvas: canvas,
+        mode: 'gpu'
+    });
+    const kernel = gpu.createKernel(
+        function (v) {
+            this.color(0,0,0,1);
+        },
+        {
+            useLegacyEncoder: true,
+            output: [600, 300],
+            graphical: true
+        }
+    );
+    const d1 = new Date().getTime();
+    kernel(1);
+    const d2 = new Date().getTime();
+    document.getElementById('fps').innerHTML = d2 - d1;
+</script>
+
+</html>
